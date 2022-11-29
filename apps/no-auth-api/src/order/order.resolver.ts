@@ -8,13 +8,10 @@ import { Order } from "./base/Order";
 import { OrderService } from "./order.service";
 
 @graphql.Resolver(() => Order)
-@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 export class OrderResolver extends OrderResolverBase {
   constructor(
     protected readonly service: OrderService,
-    @nestAccessControl.InjectRolesBuilder()
-    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {
-    super(service, rolesBuilder);
+    super(service);
   }
 }
