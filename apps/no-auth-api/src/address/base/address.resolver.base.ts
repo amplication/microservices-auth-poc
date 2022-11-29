@@ -13,12 +13,8 @@ import * as common from "@nestjs/common";
 import * as graphql from "@nestjs/graphql";
 import * as apollo from "apollo-server-express";
 import * as nestAccessControl from "nest-access-control";
-import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
-import * as gqlACGuard from "../../auth/gqlAC.guard";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
-import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
-import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { CreateAddressArgs } from "./CreateAddressArgs";
 import { UpdateAddressArgs } from "./UpdateAddressArgs";
 import { DeleteAddressArgs } from "./DeleteAddressArgs";
@@ -30,11 +26,9 @@ import { Customer } from "../../customer/base/Customer";
 import { AddressService } from "../address.service";
 
 @graphql.Resolver(() => Address)
-@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 export class AddressResolverBase {
   constructor(
     protected readonly service: AddressService,
-    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
   @graphql.Query(() => MetaQueryPayload)
@@ -56,7 +50,6 @@ export class AddressResolverBase {
     };
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Address])
   @nestAccessControl.UseRoles({
     resource: "Address",
@@ -69,7 +62,6 @@ export class AddressResolverBase {
     return this.service.findMany(args);
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Address, { nullable: true })
   @nestAccessControl.UseRoles({
     resource: "Address",
@@ -86,7 +78,6 @@ export class AddressResolverBase {
     return result;
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Address)
   @nestAccessControl.UseRoles({
     resource: "Address",
@@ -102,7 +93,6 @@ export class AddressResolverBase {
     });
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Address)
   @nestAccessControl.UseRoles({
     resource: "Address",
@@ -148,7 +138,6 @@ export class AddressResolverBase {
     }
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Customer])
   @nestAccessControl.UseRoles({
     resource: "Customer",
