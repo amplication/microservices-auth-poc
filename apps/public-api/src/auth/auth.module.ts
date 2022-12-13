@@ -7,14 +7,12 @@ import { SecretsManagerModule } from "../providers/secrets/secretsManager.module
 import { SecretsManagerService } from "../providers/secrets/secretsManager.service";
 // @ts-ignore
 // eslint-disable-next-line
-import { UserModule } from "../user/user.module";
 import { JwtStrategy } from "./jwt/jwt.strategy";
 import { jwtPublicKeyFactory } from "./jwt/jwtSecretFactory";
 //@ts-ignore
 
 @Module({
   imports: [
-    forwardRef(() => UserModule),
     PassportModule,
     SecretsManagerModule,
     JwtModule.registerAsync({
