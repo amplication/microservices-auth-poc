@@ -32,8 +32,9 @@ import { jwtPublicKeyFactory } from "./jwt/jwtSecretFactory";
 
         const expiresIn = configService.get(JWT_EXPIRATION);
         if (!expiresIn) {
-          throw new Error("Jwt expire in value is not valid");
+          throw new Error("Missing JWT_EXPIRATION environment variable");
         }
+        
         return {
           publicKey,
           signOptions: { expiresIn, algorithm: "RS256" },
