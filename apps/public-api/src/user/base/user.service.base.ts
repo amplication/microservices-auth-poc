@@ -11,13 +11,11 @@ https://docs.amplication.com/docs/how-to/custom-code
   */
 import { PrismaService } from "nestjs-prisma";
 import { Prisma, User } from "@prisma/client";
-import { PasswordService } from "../../auth/password.service";
 import { transformStringFieldUpdateInput } from "../../prisma.util";
 
 export class UserServiceBase {
   constructor(
     protected readonly prisma: PrismaService,
-    protected readonly passwordService: PasswordService
   ) {}
 
   async count<T extends Prisma.UserFindManyArgs>(
@@ -44,7 +42,7 @@ export class UserServiceBase {
 
       data: {
         ...args.data,
-        password: await this.passwordService.hash(args.data.password),
+        password: "" as any,
       },
     });
   }
@@ -61,7 +59,7 @@ export class UserServiceBase {
           args.data.password &&
           (await transformStringFieldUpdateInput(
             args.data.password,
-            (password) => this.passwordService.hash(password)
+            (password) => "" as any,
           )),
       },
     });
