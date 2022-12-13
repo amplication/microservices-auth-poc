@@ -30,17 +30,18 @@ import { TokenService } from "./token.service";
         secretsService: SecretsManagerService,
         configService: ConfigService
       ) => {
-        const secret = await secretsService.getSecret<string>(JWT_SECRET_KEY);
+        const base64PrivateKey = await secretsService.getSecret<string>(JWT_SECRET_KEY);
+        const privateKey = Buffer.from(base64PrivateKey!, "base64");
         const expiresIn = configService.get(JWT_EXPIRATION);
-        if (!secret) {
-          throw new Error("Didn't get a valid jwt secret");
+        if (!privateKey) {
+          throw new Error("Didn't get a valid JWT private key");
         }
         if (!expiresIn) {
-          throw new Error("Jwt expire in value is not valid");
+          throw new Error("JWT expiry is not valid");
         }
         return {
-          secret: secret,
-          signOptions: { expiresIn },
+          privateKey: privateKey,
+          signOptions: { expiresIn, algorithm: "RS256" },
         };
       },
     }),
