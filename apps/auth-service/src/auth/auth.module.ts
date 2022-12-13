@@ -34,15 +34,14 @@ import { TokenService } from "./token.service";
         if (!base64PrivateKey) {
           throw new Error("Missing JWT_PRIVATE_KEY environment variable");
         }
+        const privateKey = Buffer.from(base64PrivateKey!, "base64").toString("utf-8");
         
         const base64PublicKey = await secretsService.getSecret<string>(JWT_PUBLIC_KEY);
         if (!base64PublicKey) {
           throw new Error("Missing JWT_PUBLIC_KEY environment variable");
         }
-        
-        const privateKey = Buffer.from(base64PrivateKey!, "base64").toString("utf-8");
         const publicKey = Buffer.from(base64PublicKey!, "base64").toString("utf-8");
-
+        
         const expiresIn = configService.get(JWT_EXPIRATION);
         if (!expiresIn) {
           throw new Error("Missing JWT_EXPIRATION environment variable");
