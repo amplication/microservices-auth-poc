@@ -12,15 +12,12 @@ https://docs.amplication.com/docs/how-to/custom-code
 import * as common from "@nestjs/common";
 import * as swagger from "@nestjs/swagger";
 import * as nestAccessControl from "nest-access-control";
-import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { isRecordNotFoundError } from "../../prisma.util";
 import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import { AddressService } from "../address.service";
-import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { AddressCreateInput } from "./AddressCreateInput";
 import { AddressWhereInput } from "./AddressWhereInput";
 import { AddressWhereUniqueInput } from "./AddressWhereUniqueInput";
@@ -31,19 +28,11 @@ import { CustomerFindManyArgs } from "../../customer/base/CustomerFindManyArgs";
 import { Customer } from "../../customer/base/Customer";
 import { CustomerWhereUniqueInput } from "../../customer/base/CustomerWhereUniqueInput";
 @swagger.ApiBearerAuth()
-@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class AddressControllerBase {
   constructor(
     protected readonly service: AddressService,
-    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Address",
-    action: "create",
-    possession: "any",
-  })
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Address })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
@@ -63,12 +52,6 @@ export class AddressControllerBase {
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Address",
-    action: "read",
-    possession: "any",
-  })
   @common.Get()
   @swagger.ApiOkResponse({ type: [Address] })
   @swagger.ApiForbiddenResponse()
@@ -90,12 +73,6 @@ export class AddressControllerBase {
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Address",
-    action: "read",
-    possession: "own",
-  })
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Address })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -124,12 +101,6 @@ export class AddressControllerBase {
     return result;
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Address",
-    action: "update",
-    possession: "any",
-  })
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Address })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -163,11 +134,6 @@ export class AddressControllerBase {
     }
   }
 
-  @nestAccessControl.UseRoles({
-    resource: "Address",
-    action: "delete",
-    possession: "any",
-  })
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Address })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -199,12 +165,6 @@ export class AddressControllerBase {
     }
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Customer",
-    action: "read",
-    possession: "any",
-  })
   @common.Get("/:id/customers")
   @ApiNestedQuery(CustomerFindManyArgs)
   async findManyCustomers(
@@ -238,11 +198,6 @@ export class AddressControllerBase {
     return results;
   }
 
-  @nestAccessControl.UseRoles({
-    resource: "Address",
-    action: "update",
-    possession: "any",
-  })
   @common.Post("/:id/customers")
   async connectCustomers(
     @common.Param() params: AddressWhereUniqueInput,
@@ -260,11 +215,6 @@ export class AddressControllerBase {
     });
   }
 
-  @nestAccessControl.UseRoles({
-    resource: "Address",
-    action: "update",
-    possession: "any",
-  })
   @common.Patch("/:id/customers")
   async updateCustomers(
     @common.Param() params: AddressWhereUniqueInput,
@@ -282,11 +232,6 @@ export class AddressControllerBase {
     });
   }
 
-  @nestAccessControl.UseRoles({
-    resource: "Address",
-    action: "update",
-    possession: "any",
-  })
   @common.Delete("/:id/customers")
   async disconnectCustomers(
     @common.Param() params: AddressWhereUniqueInput,
