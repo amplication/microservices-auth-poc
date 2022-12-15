@@ -2,25 +2,17 @@ import { forwardRef, Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
-import { JWT_EXPIRATION, JWT_SECRET_KEY } from "../constants";
+import { JWT_EXPIRATION, JWT_PUBLIC_KEY } from "../constants";
 import { SecretsManagerModule } from "../providers/secrets/secretsManager.module";
 import { SecretsManagerService } from "../providers/secrets/secretsManager.service";
 // @ts-ignore
 // eslint-disable-next-line
-import { UserModule } from "../user/user.module";
-import { AuthController } from "./auth.controller";
-import { AuthResolver } from "./auth.resolver";
-import { AuthService } from "./auth.service";
-import { BasicStrategy } from "./basic/basic.strategy";
 import { JwtStrategy } from "./jwt/jwt.strategy";
-import { jwtSecretFactory } from "./jwt/jwtSecretFactory";
-import { PasswordService } from "./password.service";
+import { jwtPublicKeyFactory } from "./jwt/jwtSecretFactory";
 //@ts-ignore
-import { TokenService } from "./token.service";
 
 @Module({
   imports: [
-    forwardRef(() => UserModule),
     PassportModule,
     SecretsManagerModule,
     JwtModule.registerAsync({
@@ -30,31 +22,29 @@ import { TokenService } from "./token.service";
         secretsService: SecretsManagerService,
         configService: ConfigService
       ) => {
-        const secret = await secretsService.getSecret<string>(JWT_SECRET_KEY);
+        const base64PublicKey = await secretsService.getSecret<string>(JWT_PUBLIC_KEY);
+        if (!base64PublicKey) {
+          throw new Error("Missing JWT_PUBLIC_KEY environment variable");
+        }
+        const publicKey = Buffer.from(base64PublicKey!, "base64").toString("utf-8");
+
         const expiresIn = configService.get(JWT_EXPIRATION);
-        if (!secret) {
-          throw new Error("Didn't get a valid jwt secret");
-        }
         if (!expiresIn) {
-          throw new Error("Jwt expire in value is not valid");
+          throw new Error("Missing JWT_EXPIRATION environment variable");
         }
+        
         return {
-          secret: secret,
-          signOptions: { expiresIn },
+          publicKey,
+          signOptions: { expiresIn, algorithm: "RS256" },
         };
       },
     }),
   ],
   providers: [
-    AuthService,
-    BasicStrategy,
-    PasswordService,
-    AuthResolver,
     JwtStrategy,
-    jwtSecretFactory,
-    TokenService,
+    jwtPublicKeyFactory,
   ],
-  controllers: [AuthController],
-  exports: [AuthService, PasswordService],
+  controllers: [],
+  exports: [],
 })
 export class AuthModule {}

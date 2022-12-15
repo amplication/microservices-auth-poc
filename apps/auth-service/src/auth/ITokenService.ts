@@ -1,9 +1,11 @@
+import { Role } from "nest-access-control";
+
 export interface ITokenPayload {
   id: string;
   username: string;
-  password: string;
+  roles: string[];
 }
 
 export interface ITokenService {
-  createToken: ({ id, username, password }: ITokenPayload) => Promise<string>;
+  createToken: ({ id, username, roles }: ITokenPayload) => Promise<string>;
 }

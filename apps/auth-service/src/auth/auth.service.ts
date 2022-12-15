@@ -32,8 +32,8 @@ export class AuthService {
   async login(credentials: Credentials): Promise<UserInfo> {
     const { username, password } = credentials;
     const user = await this.validateUser(
-      credentials.username,
-      credentials.password
+      username,
+      password
     );
     if (!user) {
       throw new UnauthorizedException("The passed credentials are incorrect");
@@ -42,7 +42,7 @@ export class AuthService {
     const accessToken = await this.tokenService.createToken({
       id: user.id,
       username,
-      password,
+      roles: user.roles,
     });
     return {
       accessToken,
